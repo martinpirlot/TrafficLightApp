@@ -1,0 +1,15 @@
+{
+	trafficLightConfig: {
+		refresh: 15000,
+		blink: true,
+		blinkDelay: 400,
+		clewareExecutable: 'USBswitchCmd.exe',
+		jenkins: {
+			host: 'http://dev.jazzteam.org',
+			port: 8080,
+			path: '/',
+			jobs : ['xml2selenium-bestpractices', 'xml2selenium-bestpractices-english-branch'],
+			views : ['xml2selenium', 'x2s-stable-list']
+		}
+	}
+}
