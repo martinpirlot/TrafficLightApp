@@ -1,4 +1,4 @@
-package com.sopra.banking.trafficlightapp.model;
+package com.sopra.banking.trafficlightapp.service;
 
 import java.net.URI;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.BuildResult;
 import com.offbytwo.jenkins.model.JobWithDetails;
+import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
 import javafx.concurrent.Task;
 

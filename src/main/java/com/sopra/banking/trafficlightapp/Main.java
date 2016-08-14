@@ -15,8 +15,8 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 import com.google.gson.Gson;
+import com.sopra.banking.trafficlightapp.controller.TrafficLightOverviewController;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData;
-import com.sopra.banking.trafficlightapp.view.TrafficLightOverviewController;
 
 import javafx.application.Application;
 import javafx.application.Platform;

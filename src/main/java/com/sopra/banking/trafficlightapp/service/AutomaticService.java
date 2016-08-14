@@ -1,4 +1,4 @@
-package com.sopra.banking.trafficlightapp.model;
+package com.sopra.banking.trafficlightapp.service;
 
 import java.util.List;
 

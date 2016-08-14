@@ -1,12 +1,12 @@
-package com.sopra.banking.trafficlightapp.view;
+package com.sopra.banking.trafficlightapp.controller;
 
 import java.util.List;
 
 import com.sopra.banking.trafficlightapp.Main;
-import com.sopra.banking.trafficlightapp.model.AutomaticService;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.JenkinsInfo;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.TrafficLightConfig;
-import com.sopra.banking.trafficlightapp.model.TrafficLightUtil;
+import com.sopra.banking.trafficlightapp.service.AutomaticService;
+import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;

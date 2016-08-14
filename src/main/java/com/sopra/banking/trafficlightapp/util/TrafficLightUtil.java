@@ -1,4 +1,4 @@
-package com.sopra.banking.trafficlightapp.model;
+package com.sopra.banking.trafficlightapp.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Job;
+import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.JenkinsInfo;
 
 public class TrafficLightUtil {
