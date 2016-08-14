@@ -69,9 +69,9 @@
             <content>
               <AnchorPane id="panel_manual" fx:id="panel_manual" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <Button layoutX="276.0" layoutY="57.0" mnemonicParsing="false" onAction="#handleGreenButton" text="Green" textFill="#0f5719" />
+                        <Button layoutX="277.0" layoutY="207.0" mnemonicParsing="false" onAction="#handleGreenButton" text="Green" textFill="#0f5719" />
                         <Button layoutX="272.0" layoutY="130.0" mnemonicParsing="false" onAction="#handleOrangeButton" text="Orange" textFill="#ab8917" />
-                        <Button layoutX="282.0" layoutY="207.0" mnemonicParsing="false" onAction="#handleRedButton" text="Red" textFill="#ab0000" />
+                        <Button layoutX="282.0" layoutY="57.0" mnemonicParsing="false" onAction="#handleRedButton" text="Red" textFill="#ab0000" />
                      </children></AnchorPane>
             </content>
           </Tab>
