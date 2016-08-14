@@ -29,11 +29,12 @@ public class TrafficLightUtil {
     }
 	
 	public static List<String> getJobs(JenkinsInfo jenkins, String jenkinsUrl) {
-    	List<String> jobs = jenkins.getJobs();
-    	
+		List<String> jobs = jenkins.getJobs();
     	List<String> views = jenkins.getViews();
+    	
+    	// TODO Move this to a Service + Util
     	try {
-			JenkinsServer jenkinsServer = new JenkinsServer(new URI(jenkinsUrl), "x2sdemo", "x2sdemo");
+			JenkinsServer jenkinsServer = new JenkinsServer(new URI(jenkinsUrl));
 			
 			for(String sView : views) {
 				List<Job> listTmpJobs = jenkinsServer.getView(sView).getJobs();

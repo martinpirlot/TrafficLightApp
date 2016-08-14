@@ -65,6 +65,8 @@ public class TrafficLightOverviewController {
         JenkinsInfo jenkins = trafficLightConfig.getJenkins();
         
         jenkinsUrl = jenkins.getHost() + ":" + jenkins.getPort() + jenkins.getPath();
+        
+        // TODO Move this to a Service ASAP (block UI for 10sec if no jenkins found)
         jenkinsJobs = TrafficLightUtil.getJobs(jenkins, jenkinsUrl);
         refresh = trafficLightConfig.getRefresh();
         
@@ -81,8 +83,6 @@ public class TrafficLightOverviewController {
         else {
         	blinkLabel.setText("No");
         }
-        
-        createAutomaticService();
     }
     
     private void createAutomaticService() {
