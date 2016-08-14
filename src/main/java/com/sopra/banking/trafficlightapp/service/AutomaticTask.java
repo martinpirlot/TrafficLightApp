@@ -8,21 +8,18 @@ import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.BuildResult;
 import com.offbytwo.jenkins.model.JobWithDetails;
 import com.sopra.banking.trafficlightapp.model.JobResult;
-import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
 import javafx.concurrent.Task;
 
 public class AutomaticTask extends Task<List<JobResult>> {
 
-	final private String usbSwitchCmdPath;
 	final private String url;
 	final private List<String> jobs;
 	
-	public AutomaticTask(String url, List<String> jobs, String usbSwitchCmdPath) {
+	public AutomaticTask(String url, List<String> jobs) {
 		super();
 		this.url = url;
 		this.jobs = jobs;
-		this.usbSwitchCmdPath = usbSwitchCmdPath;
 	}
 	
 	@Override

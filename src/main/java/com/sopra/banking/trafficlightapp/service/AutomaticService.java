@@ -9,19 +9,17 @@ import javafx.concurrent.Task;
 
 public class AutomaticService extends ScheduledService<List<JobResult>> {
 
-	String usbSwitchCmdPath;
 	String url;
 	List<String> jobs;
 	
-	public AutomaticService(String url, List<String> jobs, String usbSwitchCmdPath) {
+	public AutomaticService(String url, List<String> jobs) {
 		super();
 		this.url = url;
 		this.jobs = jobs;
-		this.usbSwitchCmdPath = usbSwitchCmdPath;
 	}
 	
 	@Override
 	protected Task<List<JobResult>> createTask() {
-	    return new AutomaticTask(url, jobs, usbSwitchCmdPath);
+	    return new AutomaticTask(url, jobs);
 	}
 };

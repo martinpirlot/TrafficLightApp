@@ -86,7 +86,7 @@ public class TrafficLightOverviewController {
     }
     
     private void createAutomaticService() {
-    	automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs, usbSwitchCmdPath);
+    	automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs);
 		automaticService.setPeriod(Duration.millis(refresh));
 		automaticService.setRestartOnFailure(true);
 		

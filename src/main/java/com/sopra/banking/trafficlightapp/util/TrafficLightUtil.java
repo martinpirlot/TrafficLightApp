@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.offbytwo.jenkins.JenkinsServer;
 import com.offbytwo.jenkins.model.Job;
-import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.JenkinsInfo;
 
 public class TrafficLightUtil {
