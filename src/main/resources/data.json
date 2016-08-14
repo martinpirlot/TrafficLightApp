@@ -5,11 +5,11 @@
 		blinkDelay: 400,
 		clewareExecutable: 'USBswitchCmd.exe',
 		jenkins: {
-			host: 'http://dev.jazzteam.org',
+			host: 'http://example.com',
 			port: 8080,
 			path: '/',
-			jobs : ['xml2selenium-bestpractices', 'xml2selenium-bestpractices-english-branch'],
-			views : ['xml2selenium', 'x2s-stable-list']
+			jobs : ['job1', 'job2'],
+			views : ['view1', 'view2']
 		}
 	}
 }

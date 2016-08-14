@@ -2,12 +2,15 @@ package com.sopra.banking.trafficlightapp.controller;
 
 import java.util.List;
 
+import com.offbytwo.jenkins.model.BuildResult;
 import com.sopra.banking.trafficlightapp.Main;
+import com.sopra.banking.trafficlightapp.model.JobResult;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.JenkinsInfo;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.TrafficLightConfig;
 import com.sopra.banking.trafficlightapp.service.AutomaticService;
 import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
+import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -78,14 +81,50 @@ public class TrafficLightOverviewController {
         else {
         	blinkLabel.setText("No");
         }
+        
+        createAutomaticService();
+    }
+    
+    private void createAutomaticService() {
+    	automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs, usbSwitchCmdPath);
+		automaticService.setPeriod(Duration.millis(refresh));
+		automaticService.setRestartOnFailure(true);
+		
+		automaticService.setOnSucceeded((WorkerStateEvent event) -> {
+			final List<JobResult> jobResults = automaticService.getValue();
+			
+			int position = 2;
+			boolean blinking = false;
+			
+			for(JobResult jobResult : jobResults) {
+				BuildResult result = jobResult.getBuildResult();
+				if(result.equals(BuildResult.UNSTABLE)) {
+					position = 1;
+				}
+				else if(!result.equals(BuildResult.SUCCESS) && !result.equals(BuildResult.ABORTED)) {
+					position = 0;
+				}
+				if(jobResult.isBuilding()) {
+					blinking = true;
+				}
+			}
+			
+			// TODO Update UI with Job list (name + result)
+			
+			// TODO Put in another service (TrafficLightService)
+			TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1);
+		});
+		
+		automaticService.setOnFailed((WorkerStateEvent event) -> {
+			// TODO add a label into UI with a message to explain that it failed.
+			System.out.println(automaticService.getException().getMessage());
+		});
     }
     
     @FXML
     private void handleStartButton() {
     	if(automaticService == null) {
-    		automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs, usbSwitchCmdPath);
-    		automaticService.setPeriod(Duration.millis(refresh));
-    		automaticService.setRestartOnFailure(true);
+    		createAutomaticService();
     	}
     	
     	if(automaticService.isRunning()) {
