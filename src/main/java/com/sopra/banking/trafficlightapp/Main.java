@@ -96,6 +96,9 @@ public class Main extends Application {
         }
     }
     
+    /**
+     * Using AWT, not possible in JavaFx yet.
+     */
     public void addTrayIcon() {
     	if (SystemTray.isSupported()) {
             try {

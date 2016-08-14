@@ -44,7 +44,6 @@ public class TrafficLightUtil {
 						jobs.add(sJob);
 					}
 				}
-				
 			}
 		}
 		catch(Exception e) {
