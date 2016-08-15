@@ -1,20 +1,23 @@
 package com.sopra.banking.trafficlightapp.controller;
 
-import java.util.List;
-
 import com.offbytwo.jenkins.model.BuildResult;
 import com.sopra.banking.trafficlightapp.Main;
 import com.sopra.banking.trafficlightapp.model.JobResult;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.JenkinsInfo;
 import com.sopra.banking.trafficlightapp.model.TrafficLightConfigData.TrafficLightConfig;
 import com.sopra.banking.trafficlightapp.service.AutomaticService;
+import com.sopra.banking.trafficlightapp.service.GetJobsService;
 import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.util.Duration;
 
 public class TrafficLightOverviewController {
@@ -27,6 +30,13 @@ public class TrafficLightOverviewController {
 	
 	@FXML
     private Button startButton;
+	
+	@FXML
+    private TableView<JobResult> jobTable;
+    @FXML
+    private TableColumn<JobResult, String> jobNameColumn;
+    @FXML
+    private TableColumn<JobResult, BuildResult> jobResultColumn;
 	
 	@FXML
     private Label urlLabel;
@@ -44,10 +54,10 @@ public class TrafficLightOverviewController {
     
     private Main main;
     
-    String jenkinsUrl;
-    String usbSwitchCmdPath;
-    List<String> jenkinsJobs;
-    AutomaticService automaticService = null;
+    private String jenkinsUrl;
+    private String usbSwitchCmdPath;
+    private ObservableList<JobResult> jenkinsJobs;
+    private AutomaticService automaticService = null;
     int refresh;
     
     public TrafficLightOverviewController() {
@@ -55,6 +65,8 @@ public class TrafficLightOverviewController {
     
     @FXML
     private void initialize() {
+    	jobNameColumn.setCellValueFactory(cellData -> cellData.getValue().fullNameProperty());
+    	jobResultColumn.setCellValueFactory(cellData -> cellData.getValue().buildResultProperty());
     }
     
     public void setMain(Main main) {
@@ -66,8 +78,9 @@ public class TrafficLightOverviewController {
         
         jenkinsUrl = jenkins.getHost() + ":" + jenkins.getPort() + jenkins.getPath();
         
-        // TODO Move this to a Service ASAP (block UI for 10sec if no jenkins found)
-        jenkinsJobs = TrafficLightUtil.getJobs(jenkins, jenkinsUrl);
+        createJobList(jenkins);
+        startButton.setDisable(true);
+        
         refresh = trafficLightConfig.getRefresh();
         
         // Add observable list data to the table
@@ -85,13 +98,33 @@ public class TrafficLightOverviewController {
         }
     }
     
+    private void createJobList(JenkinsInfo jenkins) {
+    	GetJobsService getJobsService = new GetJobsService(jenkinsUrl, jenkins);
+    	getJobsService.setRestartOnFailure(false);
+    	
+    	getJobsService.setOnSucceeded((WorkerStateEvent event) -> {
+    		jenkinsJobs = getJobsService.getValue();
+    		jobTable.setItems(jenkinsJobs);
+			startButton.setDisable(false);
+			getJobsService.cancel();
+    	});
+    	
+    	getJobsService.setOnFailed((WorkerStateEvent event) -> {
+    		jenkinsJobs = FXCollections.observableArrayList();
+			startButton.setText("Error");
+    		System.out.println("Unable to retrieve Jenkins job list: " + getJobsService.getException().getMessage());
+    	});
+    	
+    	getJobsService.start();
+    }
+    
     private void createAutomaticService() {
     	automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs);
 		automaticService.setPeriod(Duration.millis(refresh));
 		automaticService.setRestartOnFailure(true);
 		
 		automaticService.setOnSucceeded((WorkerStateEvent event) -> {
-			final List<JobResult> jobResults = automaticService.getValue();
+			final ObservableList<JobResult> jobResults = automaticService.getValue();
 			
 			int position = 2;
 			boolean blinking = false;
@@ -110,7 +143,7 @@ public class TrafficLightOverviewController {
 			}
 			
 			// TODO Update UI with Job list (name + result)
-			
+			// TODO Use blinking boolean
 			// TODO Put in another service (TrafficLightService)
 			TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1);
 		});
