@@ -27,17 +27,17 @@ public class TrafficLightOverviewController {
 	private Tab manualTab;
 	@FXML
 	private Tab automaticTab;
-	
+
 	@FXML
     private Button startButton;
-	
+
 	@FXML
     private TableView<JobResult> jobTable;
     @FXML
     private TableColumn<JobResult, String> jobNameColumn;
     @FXML
     private TableColumn<JobResult, BuildResult> jobResultColumn;
-	
+
 	@FXML
     private Label urlLabel;
     @FXML
@@ -46,49 +46,49 @@ public class TrafficLightOverviewController {
     private Label jobsLabel;
     @FXML
     private Label viewsLabel;
-    
+
     @FXML
     private Label refreshLabel;
     @FXML
     private Label blinkLabel;
-    
+
     private Main main;
-    
+
     private String jenkinsUrl;
     private String usbSwitchCmdPath;
     private ObservableList<JobResult> jenkinsJobs;
     private AutomaticService automaticService = null;
     int refresh;
-    
+
     public TrafficLightOverviewController() {
     }
-    
+
     @FXML
     private void initialize() {
     	jobNameColumn.setCellValueFactory(cellData -> cellData.getValue().fullNameProperty());
     	jobResultColumn.setCellValueFactory(cellData -> cellData.getValue().buildResultProperty());
     }
-    
+
     public void setMain(Main main) {
         this.main = main;
 
         usbSwitchCmdPath = "C:/TrafficLightApp/USBswitchCmd.exe";
         TrafficLightConfig trafficLightConfig = this.main.getTrafficLightConfigData().getTrafficLightConfig();
         JenkinsInfo jenkins = trafficLightConfig.getJenkins();
-        
+
         jenkinsUrl = jenkins.getHost() + ":" + jenkins.getPort() + jenkins.getPath();
-        
+
         createJobList(jenkins);
         startButton.setDisable(true);
-        
+
         refresh = trafficLightConfig.getRefresh();
-        
+
         // Add observable list data to the table
         urlLabel.setText(jenkins.getHost());
         portLabel.setText(Integer.toString(jenkins.getPort()));
         jobsLabel.setText(jenkins.getJobs().toString());
         viewsLabel.setText(jenkins.getViews().toString());
-        
+
         refreshLabel.setText(Integer.toString(trafficLightConfig.getRefresh()) + "ms");
         if(trafficLightConfig.isBlink()) {
         	blinkLabel.setText(Integer.toString(trafficLightConfig.getBlinkDelay()) + "ms");
@@ -97,69 +97,79 @@ public class TrafficLightOverviewController {
         	blinkLabel.setText("No");
         }
     }
-    
+
     private void createJobList(JenkinsInfo jenkins) {
     	GetJobsService getJobsService = new GetJobsService(jenkinsUrl, jenkins);
     	getJobsService.setRestartOnFailure(false);
-    	
+
     	getJobsService.setOnSucceeded((WorkerStateEvent event) -> {
     		jenkinsJobs = getJobsService.getValue();
     		jobTable.setItems(jenkinsJobs);
 			startButton.setDisable(false);
 			getJobsService.cancel();
     	});
-    	
+
     	getJobsService.setOnFailed((WorkerStateEvent event) -> {
     		jenkinsJobs = FXCollections.observableArrayList();
 			startButton.setText("Error");
-    		System.out.println("Unable to retrieve Jenkins job list: " + getJobsService.getException().getMessage());
+    		System.out.println("Unable to retrieve Jenkins job list: " + getJobsService.getException());
     	});
-    	
+
     	getJobsService.start();
     }
-    
+
     private void createAutomaticService() {
     	automaticService = new AutomaticService(jenkinsUrl, jenkinsJobs);
 		automaticService.setPeriod(Duration.millis(refresh));
 		automaticService.setRestartOnFailure(true);
-		
+
 		automaticService.setOnSucceeded((WorkerStateEvent event) -> {
 			final ObservableList<JobResult> jobResults = automaticService.getValue();
-			
+
 			int position = 2;
 			boolean blinking = false;
-			
+
 			for(JobResult jobResult : jobResults) {
 				BuildResult result = jobResult.getBuildResult();
-				if(result.equals(BuildResult.UNSTABLE)) {
-					position = 1;
-				}
-				else if(!result.equals(BuildResult.SUCCESS) && !result.equals(BuildResult.ABORTED)) {
-					position = 0;
-				}
 				if(jobResult.isBuilding()) {
 					blinking = true;
 				}
+				if(result != null) {
+					if(result.equals(BuildResult.FAILURE)) {
+						position = 0;
+						break;
+					}
+					if(result.equals(BuildResult.UNSTABLE)) {
+						position = 1;
+					}
+				}
 			}
-			
-			// TODO Update UI with Job list (name + result)
+
 			// TODO Use blinking boolean
 			// TODO Put in another service (TrafficLightService)
-			TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1);
+			TrafficLightUtil.switchLight(usbSwitchCmdPath, (position+1)%3, 0, false);
+			TrafficLightUtil.switchLight(usbSwitchCmdPath, (position+2)%3, 0, false);
+
+			if(blinking) {
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1, true);
+			}
+			else {
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1, false);
+			}
 		});
-		
+
 		automaticService.setOnFailed((WorkerStateEvent event) -> {
 			// TODO add a label into UI with a message to explain that it failed.
 			System.out.println(automaticService.getException().getMessage());
 		});
     }
-    
+
     @FXML
     private void handleStartButton() {
     	if(automaticService == null) {
     		createAutomaticService();
     	}
-    	
+
     	if(automaticService.isRunning()) {
     		startButton.setText("Start");
     		automaticService.cancel();
@@ -170,19 +180,25 @@ public class TrafficLightOverviewController {
     		automaticService.start();
     	}
     }
-    
+
     @FXML
     private void handleGreenButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 1);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 1, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 0, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 0, false);
     }
-    
+
     @FXML
     private void handleOrangeButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 1);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 1, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 0, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 0, false);
     }
-    
+
     @FXML
     private void handleRedButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 1);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 1, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 0, false);
+    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 0, false);
     }
 }

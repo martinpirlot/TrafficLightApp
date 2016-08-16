@@ -28,21 +28,21 @@ import javafx.stage.WindowEvent;
 
 
 public class Main extends Application {
-	
+
 	private Stage primaryStage;
 	public ClassLoader classLoader;
     private AnchorPane rootLayout;
     private TrafficLightConfigData trafficLightConfigData;
-    
+
     public Main() {
 		classLoader = this.getClass().getClassLoader();
 
 		Gson gson = new Gson();
 		InputStream is = classLoader.getResourceAsStream("data.json");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		trafficLightConfigData = gson.fromJson(reader, TrafficLightConfigData.class);  
+		trafficLightConfigData = gson.fromJson(reader, TrafficLightConfigData.class);
     }
-    
+
     public TrafficLightConfigData getTrafficLightConfigData() {
     	return trafficLightConfigData;
     }
@@ -51,11 +51,11 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.setTitle("Traffic Light Application");
-        
+
         Platform.setImplicitExit(false);
-        
+
         SwingUtilities.invokeLater(this::addTrayIcon);
-        
+
         initRootLayout();
     }
 
@@ -77,11 +77,11 @@ public class Main extends Application {
                     });
                 }
             });
-        	
+
             // Load root layout from fxml file.
             FXMLLoader loader = new FXMLLoader(classLoader.getResource("view/TrafficLightOverview.fxml"));
             rootLayout = (AnchorPane) loader.load();
-            
+
             // Give the controller access to the main app.
             TrafficLightOverviewController controller = loader.getController();
             controller.setMain(this);
@@ -94,7 +94,7 @@ public class Main extends Application {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Using AWT, not possible in JavaFx yet.
      */
@@ -102,20 +102,20 @@ public class Main extends Application {
     	if (SystemTray.isSupported()) {
             try {
             	java.awt.Toolkit.getDefaultToolkit();
-            	
+
 	            SystemTray tray = SystemTray.getSystemTray();
 	            Image image = ImageIO.read(classLoader.getResourceAsStream("img/icon.jpg"));
-	            
+
 	            MenuItem openItem = new MenuItem("Open");
 	            MenuItem hideItem = new MenuItem("Hide");
 	            java.awt.Font defaultFont = java.awt.Font.decode(null);
 	            java.awt.Font boldFont = defaultFont.deriveFont(java.awt.Font.BOLD);
 	            openItem.setFont(boldFont);
 	            MenuItem exitItem = new MenuItem("Exit");
-	            
+
 	            TrayIcon trayIcon = new TrayIcon(image);
 	            trayIcon.setImageAutoSize(true);
-	            
+
 	            openItem.addActionListener(event -> Platform.runLater(this::showPrimaryStage));
 	            hideItem.addActionListener(event -> Platform.runLater(this::hidePrimaryStage));
 	            exitItem.addActionListener(event -> {
@@ -123,8 +123,8 @@ public class Main extends Application {
 	                Platform.exit();
 	                System.exit(0);
 	            });
-	
-	            trayIcon.addActionListener(event -> Platform.runLater(this::showOrHidePrimaryStage));                    
+
+	            trayIcon.addActionListener(event -> Platform.runLater(this::showOrHidePrimaryStage));
 
 	            PopupMenu popup = new PopupMenu();
 	            popup.add(openItem);
@@ -132,31 +132,31 @@ public class Main extends Application {
 	            popup.addSeparator();
 	            popup.add(exitItem);
 	            trayIcon.setPopupMenu(popup);
-	            
+
 	            tray.add(trayIcon);
-	            
+
             } catch (Exception e) {
             	System.err.println("Can't add to tray: " + e);
             }
-            
+
     	} else {
         	System.err.println("Tray unavailable.");
     	}
     }
-    
+
     private void showPrimaryStage() {
         if (primaryStage != null) {
             primaryStage.show();
             primaryStage.toFront();
         }
     }
-    
+
     private void hidePrimaryStage() {
         if (primaryStage != null) {
         	primaryStage.hide();
         }
     }
-    
+
     private void showOrHidePrimaryStage() {
         if (primaryStage != null && primaryStage.isShowing()) {
         	hidePrimaryStage();
@@ -173,7 +173,7 @@ public class Main extends Application {
     public Stage getPrimaryStage() {
         return primaryStage;
     }
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
