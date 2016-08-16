@@ -8,9 +8,17 @@ import java.net.URISyntaxException;
 import com.offbytwo.jenkins.JenkinsServer;
 
 public class TrafficLightUtil {
-	public static void switchLight(String path, int position, int state, boolean blinking) {
+	public static void switchLight(String path, int state, int position) {
+    	callTrafficLightExecutable(path, "" + state, "-#", "" + position);
+    }
+	
+	public static void switchAllLights(String path, int state) {
+    	callTrafficLightExecutable(path, "" + state, "-#", "1,2,3");
+    }
+	
+	public static void callTrafficLightExecutable(String... command) {
     	try {
-	    	ProcessBuilder processBuilder = new ProcessBuilder(path, "" + state, "-#", "" + position);
+	    	ProcessBuilder processBuilder = new ProcessBuilder(command);
 	    	processBuilder.redirectErrorStream(true);
 
 	    	Process process = processBuilder.start();

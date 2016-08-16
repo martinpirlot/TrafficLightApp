@@ -53,6 +53,8 @@ public class TrafficLightOverviewController {
     private Label blinkLabel;
 
     private Main main;
+    
+    private int currentPosition;
 
     private String jenkinsUrl;
     private String usbSwitchCmdPath;
@@ -145,16 +147,14 @@ public class TrafficLightOverviewController {
 				}
 			}
 
-			// TODO Use blinking boolean
 			// TODO Put in another service (TrafficLightService)
-			TrafficLightUtil.switchLight(usbSwitchCmdPath, (position+1)%3, 0, false);
-			TrafficLightUtil.switchLight(usbSwitchCmdPath, (position+2)%3, 0, false);
-
 			if(blinking) {
-				TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1, true);
+				// Service for blinking
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, currentPosition);
 			}
 			else {
-				TrafficLightUtil.switchLight(usbSwitchCmdPath, position, 1, false);
+				TrafficLightUtil.switchAllLights(usbSwitchCmdPath, 0);
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, position);
 			}
 		});
 
@@ -182,23 +182,20 @@ public class TrafficLightOverviewController {
     }
 
     @FXML
-    private void handleGreenButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 1, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 0, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 0, false);
+    private void handleRedButton() {
+    	TrafficLightUtil.switchAllLights(usbSwitchCmdPath, 0);
+		TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 0);
     }
-
+    
     @FXML
     private void handleOrangeButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 1, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 0, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 0, false);
+    	TrafficLightUtil.switchAllLights(usbSwitchCmdPath, 0);
+		TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 1);
     }
 
     @FXML
-    private void handleRedButton() {
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, 1, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 0, false);
-    	TrafficLightUtil.switchLight(usbSwitchCmdPath, 2, 0, false);
+    private void handleGreenButton() {
+    	TrafficLightUtil.switchAllLights(usbSwitchCmdPath, 0);
+		TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 2);
     }
 }
