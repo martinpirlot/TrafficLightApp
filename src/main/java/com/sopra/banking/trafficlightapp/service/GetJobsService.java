@@ -15,10 +15,10 @@ import com.sopra.banking.trafficlightapp.util.TrafficLightUtil;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-public class GetJobsService extends ScheduledService<ObservableList<JobResult>> {
+public class GetJobsService extends Service<ObservableList<JobResult>> {
 	String url;
 	JenkinsInfo jenkins;
 	final String username;
@@ -59,6 +59,10 @@ public class GetJobsService extends ScheduledService<ObservableList<JobResult>> 
 		    	List<String> views = jenkins.getViews();
 
 		    	for(String sJob : jobs) {
+		    		if (isCancelled()) {
+		                break;
+		            }
+		    		
 		    		Job job = jenkinsServer.getJob(sJob);
 		    		if(job != null) {
 		    			jobResults.add(getJobResult(job));
@@ -66,11 +70,19 @@ public class GetJobsService extends ScheduledService<ObservableList<JobResult>> 
 				}
 
 		    	for(String sView : views) {
+		    		if (isCancelled()) {
+		                break;
+		            }
+		    		
 		    		View view = jenkinsServer.getView(sView);
 		    		if(view != null)
 		    		{
 						List<Job> listViewJobs = jenkinsServer.getView(sView).getJobs();
 						for(Job viewJob : listViewJobs) {
+							if (isCancelled()) {
+				                break;
+				            }
+							
 							Job job = jenkinsServer.getJob(viewJob.getName());
 							if(job != null) {
 								JobResult jobResult = getJobResult(job);

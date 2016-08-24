@@ -53,8 +53,6 @@ public class TrafficLightOverviewController {
     private Label blinkLabel;
 
     private Main main;
-    
-    private int currentPosition;
 
     private String jenkinsUrl;
     private String usbSwitchCmdPath;
@@ -102,13 +100,11 @@ public class TrafficLightOverviewController {
 
     private void createJobList(JenkinsInfo jenkins) {
     	GetJobsService getJobsService = new GetJobsService(jenkinsUrl, jenkins);
-    	getJobsService.setRestartOnFailure(false);
 
     	getJobsService.setOnSucceeded((WorkerStateEvent event) -> {
     		jenkinsJobs = getJobsService.getValue();
     		jobTable.setItems(jenkinsJobs);
 			startButton.setDisable(false);
-			getJobsService.cancel();
     	});
 
     	getJobsService.setOnFailed((WorkerStateEvent event) -> {
@@ -150,10 +146,11 @@ public class TrafficLightOverviewController {
 			// TODO Put in another service (TrafficLightService)
 			if(blinking) {
 				// Service for blinking
-				TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, currentPosition);
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, 1);
 			}
 			else {
-				TrafficLightUtil.switchAllLights(usbSwitchCmdPath, 0);
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, (position+1)%3);
+				TrafficLightUtil.switchLight(usbSwitchCmdPath, 0, (position+2)%3);
 				TrafficLightUtil.switchLight(usbSwitchCmdPath, 1, position);
 			}
 		});
